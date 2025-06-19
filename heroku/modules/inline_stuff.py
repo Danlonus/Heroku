@@ -26,6 +26,22 @@ class InlineStuff(loader.Module):
     """Provides support for inline stuff"""
 
     strings = {"name": "InlineStuff"}
+    
+    def __init__(self):
+        self.config = loader.ModuleConfig(
+            loader.ConfigValue(
+                "bot_photo_url", 
+                "https://i.ibb.co/0VjV2bz4/image.png", 
+                "URL фотографии, которая показывается при команде /start", 
+                validator=loader.validators.String()
+            ),
+            loader.ConfigValue(
+                "bot_start_message", 
+                "👋 <b>Привет! Съебись нахуй, по братски, а если ты мне не брат, то тем более, иди нахуй отсюда</b>\n\n<b>🆘 <a href=\"https://goo.su/zU2Tgby\">Как пользоваться ботом</a></b>", 
+                "Сообщение, которое показывается при команде /start", 
+                validator=loader.validators.String()
+            ),
+        )
 
     @loader.watcher(
         "out",
@@ -129,6 +145,6 @@ class InlineStuff(loader.Module):
             return
 
         await message.answer_photo(
-            "https://imgur.com/a/0gmlFYI.png",
-            caption=self.strings("this_is_heroku"),
+            self.config["bot_photo_url"],
+            caption=self.config["bot_start_message"],
         )

@@ -169,6 +169,8 @@ config.json
 .profile.d/
 vendor/
 Pipfile.lock
+gemini/
+limoka_search/
 
 heroku.log.*
 unknown_errors.txt

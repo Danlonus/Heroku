@@ -98,6 +98,11 @@ class APIRatelimiterMod(loader.Module):
                         "sendReaction",
                         "joinChannel",
                         "importChatInvite",
+			"exportChatInvite",
+			"setPrivacy",
+			"changePhone",
+			"resetPassword",
+			"DeleteAccount"
                     ]
                 ),
                 on_change=self.on_forbidden_methods_update
