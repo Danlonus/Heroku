@@ -818,67 +818,69 @@ class Heroku:
             while await self.amain(first, client):
                 first = False
 
-    async def _badge(self, client: CustomTelegramClient):
-        """Call the badge in shell"""
-        try:
-            import git
+async def _badge(self, client: CustomTelegramClient):
+    """Call the badge in shell"""
+    try:
+        import git
 
-            repo = git.Repo()
+        repo = git.Repo()
 
-            build = utils.get_git_hash()
-            diff = repo.git.log([f"HEAD..origin/{version.branch}", "--oneline"])
-            upd = "Update required" if diff else "Up-to-date"
+        build = utils.get_git_hash()
+        diff = repo.git.log([f"HEAD..origin/{version.branch}", "--oneline"])
+        upd = "Update required" if diff else "Up-to-date"
 
-            logo = (
-                "                          _           \n"
-               r"  /\  /\ ___  _ __  ___  | | __ _   _ ""\n"
-               r" / /_/ // _ \| '__|/ _ \ | |/ /| | | |""\n"
-                "/ __  /|  __/| |  | (_) ||   < | |_| |\n"
-               r"\/ /_/  \___||_|   \___/ |_|\_\ \__,_|""\n\n"
-                f"• Build: {build[:7]}\n"
-                f"• Version: {'.'.join(list(map(str, list(__version__))))}\n"
-                f"• {upd}\n"
+        logo = (
+            "                          _           \n"
+           r"  /\  /\ ___  _ __  ___  | | __ _   _ ""\n"
+           r" / /_/ // _ \| '__|/ _ \ | |/ /| | | |""\n"
+            "/ __  /|  __/| |  | (_) ||   < | |_| |\n"
+           r"\/ /_/  \___||_|   \___/ |_|\_\ \__,_|""\n\n"
+            f"• Build: {build[:7]}\n"
+            f"• Version: {'.'.join(list(map(str, list(__version__))))}\n"
+            f"• {upd}\n"
+        )
+
+        # Определяем web_url вне условного блока
+        web_url = (
+            f"🔗 Web url: {self.web.url}"
+            if self.web and hasattr(self.web, "url")
+            else ""
+        )
+
+        if not self.omit_log:
+            print(logo)
+            logging.debug(
+                "\n🪐 Heroku %s #%s (%s) started\n%s",
+                ".".join(list(map(str, list(__version__)))),
+                build[:7],
+                upd,
+                web_url,
             )
+            self.omit_log = True
 
-            if not self.omit_log:
-                print(logo)
-                web_url = (
-                    f"🔗 Web url: {self.web.url}"
-                    if self.web and hasattr(self.web, "url")
-                    else ""
-                )
-                logging.debug(
-                    "\n🪐 Heroku %s #%s (%s) started\n%s",
+        await client.heroku_inline.bot.send_photo(
+            logging.getLogger().handlers[0].get_logid_by_client(client.tg_id),
+            "https://imgur.com/a/uUF9zYL.png",
+            caption=(
+                "🪐 <b>Heroku {} started!</b>\n\n⚙ <b>GitHub commit SHA: <a"
+                ' href="https://github.com/coddrago/Heroku/commit/{}">{}</a></b>\n🔎'
+                " <b>Update status: {}</b>\n<b>{}</b>".format(
                     ".".join(list(map(str, list(__version__)))),
+                    build,
                     build[:7],
                     upd,
                     web_url,
                 )
-                self.omit_log = True
+            ),
+        )
 
-            await client.heroku_inline.bot.send_photo(
-                logging.getLogger().handlers[0].get_logid_by_client(client.tg_id),
-                "https://imgur.com/a/uUF9zYL.png",
-                caption=(
-                    "🪐 <b>Heroku {} started!</b>\n\n⚙ <b>GitHub commit SHA: <a"
-                    ' href="https://github.com/coddrago/Heroku/commit/{}">{}</a></b>\n🔎'
-                    " <b>Update status: {}</b>\n<b>{}</b>".format(
-                        ".".join(list(map(str, list(__version__)))),
-                        build,
-                        build[:7],
-                        upd,
-                        web_url,
-                    )
-                ),
-            )
-
-            logging.debug(
-                "· Started for %s · Prefix: «%s» ·",
-                client.tg_id,
-                client.heroku_db.get(__name__, "command_prefix", False) or ".",
-            )
-        except Exception:
-            logging.exception("Badge error")
+        logging.debug(
+            "· Started for %s · Prefix: «%s» ·",
+            client.tg_id,
+            client.heroku_db.get(__name__, "command_prefix", False) or ".",
+        )
+    except Exception:
+        logging.exception("Badge error")
 
     async def _add_dispatcher(
         self,
