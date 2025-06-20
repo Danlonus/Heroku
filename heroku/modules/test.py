@@ -50,7 +50,7 @@ class TestMod(loader.Module):
         self.config = loader.ModuleConfig(
             loader.ConfigValue(
                 "disable_logging",
-                False,
+                True,
                 "⚠️ Полностью отключить логирование в Telegram и не создавать канал heroku-logs",
                 validator=loader.validators.Boolean(),
             ),
