@@ -49,6 +49,12 @@ class TestMod(loader.Module):
         self._memory = {}
         self.config = loader.ModuleConfig(
             loader.ConfigValue(
+                "disable_logging",
+                False,
+                "⚠️ Полностью отключить логирование в Telegram и не создавать канал heroku-logs",
+                validator=loader.validators.Boolean(),
+            ),
+            loader.ConfigValue(
                 "force_send_all",
                 False,
                 (
@@ -412,6 +418,10 @@ class TestMod(loader.Module):
 
 
     async def client_ready(self):
+        if self.config["disable_logging"]:
+            logger.info("Telegram logging disabled by config")
+            return
+            
         chat, _ = await utils.asset_channel(
             self._client,
             "heroku-logs",
